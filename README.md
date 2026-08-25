@@ -1,59 +1,148 @@
-Objetivo:
+# Sistema de Faturamento Hospitalar Automatizado
 
-Percebi que no meu trabalho atual, o sistema de faturamento é muito manual e poderia ser automatizado reduzindo muito o tempo de faturamento
+Trabalho com faturamento hospitalar e o sistema que usamos é legado: quase tudo é digitado à mão,
+campo por campo, comanda por comanda. Percebi que a maior parte desse trabalho manual é
+**informação que o próprio sistema já tem** — o leito sabe quem é o paciente, o login sabe quem é
+o funcionário, o produto tem código próprio. Só não estava conectado.
 
-O que iremos desenvolver:
+Este projeto é a minha proposta de como esse fluxo poderia funcionar: mesma regra de negócio,
+mesmas informações, mas com o sistema preenchendo tudo que ele já é capaz de deduzir.
+Não foi implantado no trabalho (o sistema de lá é legado e envolve muito mais coisa) — foi
+construído em casa como projeto, a partir de um problema real que observei.
 
-A ideia é reproduzir uma parte do fluxo do sistema de faturamento do meu trabalho porém de forma automatizada, mais clara e simples.
-Para isso, teremos dois pontos importante, primeiro é o banco de dados armazenando informações, uma API REST com fastapi no backend, um frontend. O segundo ponto importante são as regras do sistema para automatizar que estaram em outro tópico mais abaixo 
+![Tela de movimentação de comandas](docs/tela.png)
 
-O que eu fiz até agora:
-Criei uma venv, iniciei o git e fiz o primeiro commit antes de começar usar o claude, já criei o banco de dados com as informações necessárias e adicionei valores dentro dele(no script, ainda não rodei esse código). Eu criei um arquivo sistema_faturamento aonde iria começar aplicar as regras e endpoints da API
+---
 
-Seu papel:
-Me ajudar a construir esse sistema já utilizando partes do meu código, esse sistema não é profissional, então não precisamos ter um código como se fosse feito por senior, vamos trabalhar de forma simples e certeira, seu papel também é entender minha encessidade com esse projeto e minhas especificações, caso haja dúvidas, sempre me pergunte antes
+## O ganho: sistema antigo x sistema projetado
 
-tecnologias:
-vamos usar slite3 para o banco de dados com persistencia em arquivos, nada de temporario. Iremos utilizar o framework fastapi, python para o backend e javascript, html e css para o frontend(não domino frontend, caso tenha opções melhores e novas ideias me avise antes)
+O que eu contei foram as **ações do funcionário para faturar uma comanda** — cada campo digitado
+à mão, cada `Tab` para "acordar" um campo, cada clique.
 
-segurança:
-Não vamos usar chaves de API ou algo assim, todo conteúdo no banco de dados reflete um exemplo somente, não se preocupe com segurança de informações
+| Etapa | Sistema antigo | Sistema projetado |
+|---|---|---|
+| Número da comanda | gerado sozinho | gerado sozinho |
+| Tipo de comanda (honorário) | digitado | preenchido junto com o número |
+| Leito | digitado | digitado *(única digitação que sobrou)* |
+| Setor | digitado de cabeça | vem do leito |
+| Nome do paciente | digitado | vem do leito |
+| Código do paciente | digitado | vem do leito |
+| Convênio | `Tab` para aparecer | vem do leito |
+| Data e hora | `Tab` para aparecer | vem do leito |
+| Produto | **código decorado**, digitado | seleciona pelo nome, o código aparece |
+| Quantidade | digitada | setinhas, sem teclado numérico |
+| Código médico | digitado | vem do login |
+| Ato (cargo) | digitado | vem do login |
 
-frontend da aplicação: 
-A aplicação original é um frontend bem antigo e legado, o design é velho e com muitas informações. Iremos aprimorar tudo isso em design, o fundo deve permanecer branco e a frente deve abrir um forms com cores em degrade, de forma suave e simples, para saber o que implementar no forms, leia "segundo ponto, as regras do sistema para automatizar:"
+O número da comanda já era automático no sistema antigo — é o único campo que os dois têm em
+comum. Todo o resto era trabalho do funcionário.
 
-segundo ponto, as regras do sistema para automatizar:
-o frontend deve conter uma aba de login de usuario e senha(Sem JWT no momento, isso irei estudar para implementar sozinho depois) a forma de autenticar o usuário pode ser uma forma padrão(verificar o nome dele e a senha no banco de dados batem com as informações do login). Após isso abrirá a tela de fundo branco com o forms centralizado no meio. O título do forms deve tá escrito como (movimentação de comandas)
+**Comanda com 1 produto:** 11 ações manuais → **3**. Redução de **~73%**.
+**Contando só o que precisa ser digitado:** 9 campos → **1** (o leito). Redução de **~89%**.
 
-abaixo segue cada campo, seguido com seu título e a informação que deve conter:
+### O detalhe que mais pesa: comandas com vários produtos
 
-campo um, número da comanda, id aleatório entre 1000 a 3000 já gerado em def gerar_id_faturament, não há problema se repetir o id, faturamentos não devem ser salvos
-campo dois, tipo de comanda, preencher como honorário logo após gerar o número de comanda no campo um
+No sistema antigo, cada produto adicional obrigava a repetir **produto + código médico + ato +
+quantidade** — 4 campos de novo, toda vez. Aqui, "adicionar novo produto" abre só a linha do
+produto: código médico e ato ficam onde estão, porque não mudam.
 
-campo tres, leito do paciente, escrever o leito que o paciente está e automaticamente essa informação deve preencher o nome completo do paciente, o id no paciente
+| Produtos na comanda | Antigo | Projetado | Redução |
+|---|---|---|---|
+| 1 | 11 ações | 3 | 73% |
+| 3 | 19 ações | 7 | 63% |
+| 5 | 27 ações | 11 | 59% |
 
-campo quatro do paciente
-campo cinco, nome completo
-campo seis convenio do paciente
-campo sete, data, irá puxar o dia atual na função def data_hora_atual():
-campo oito, hora, irá puxar a hora atual na função def data_hora_atual():
+O custo de cada produto extra cai de **4 campos digitados para 2 cliques**.
 
-ATENÇÃO(clicar em gerar número de comanda erá preencher o campo 1 e automaticamente o campo 2. Escrever o leito e dar ok deve preencher automaticamente os campos 4,5,6,7,8)
+### Os dois insights que considero mais relevantes
 
-ainda no formulário, porém um pouco mais abaixo, deve conter em uma única linha:
+**1. O erro caro não era a digitação, era o código decorado.**
+No sistema antigo o funcionário precisava lembrar o código do produto. Quem não lembrava,
+perguntava, consultava ou chutava — e código errado no faturamento não vira só retrabalho, vira
+comanda incorreta. Trocar "digite o código" por "escolha o nome e o código aparece" não deixa
+essa classe de erro mais rara: **elimina ela**, porque o campo passa a ser preenchido pelo banco,
+não pela memória de quem fatura.
 
-campo 8, produtos, está relacionado com a tabela produtos, deve aparecer para selecionar os produtos que tem na lista, o usuário clica no produto que quer e no campo 8 aparece o id do produto
-campo 9, nome do produto que será preenchido automaticamente após preencher o campo 8 pois eles se relacionam
-campo 10, quantidade, esse campo deve ser para o usuário colocar o número de vezes que o produto foi ofertado, pode ser um campo com setinhas pra cima e para baixo aonde se clica para aumentar ou para diminuir
+**2. Automação aqui não é inteligência, é ligação de dados.**
+Nenhum campo automático deste projeto exige algo sofisticado — é `JOIN` e sessão de login. Os 89%
+de digitação que sumiram já existiam guardados no banco. O trabalho manual do sistema antigo
+existia por falta de conexão entre tabelas, não por falta de informação.
 
-na linha abaixo uma opção para adicionar um novo produto, caso seja clicado em adicionar um novo produto irá abrir uma nova linha identica aos campos 8,9,10
+---
 
-mais abaixo, quase no final, deve aparecer:
-campo11, código médico, aqui deve conter o id da pessoa que fez o login, deve ser preencido automaticamente logo após o login
-campo 12, ato, esse campo deve ser preenchido com o cargo do usuário que fez login, exemplo, se quem fez login foi matheus ferraz, esse campo deve aparecer escrito fisioterapia(será preenchido automaticamente ao fazer o login)
+## Stack
 
-no final do forms deve conter dois botões, um escrito confirmar e outro cancelar.
-botão confirmar -> animação de tela dizendo que a comanda do faturamento foi salva com sucesso -> em seguida abre um novo forms para preencher
-botão cancelar -> reseta as informações escritas no forms, para começar a escrever de novo
+| Camada | Tecnologia |
+|---|---|
+| Backend | Python + FastAPI (API REST) |
+| Banco | SQLite3, com persistência em arquivo (`database/faturamento.db`) |
+| Frontend | HTML, CSS e JavaScript puro (sem framework) |
+| Servidor | Uvicorn |
 
-no topo do forms deve ter um X que serve para fechar e voltar para tela de login
+O frontend é servido pelo próprio FastAPI: fundo branco, formulário centralizado em degradê suave —
+o oposto da tela poluída do sistema original.
+
+## Como rodar
+
+```bash
+venv\Scripts\activate
+pip install fastapi uvicorn
+python -m uvicorn backend.sistema_faturamento:app --reload
+```
+
+Abra: http://localhost:8000 — docs automáticas em http://localhost:8000/docs
+
+O banco é criado e populado sozinho quando a API sobe.
+Para recriar manualmente: `python database/data.py`
+
+## Dados de exemplo
+
+**Login** (senha `1234` para todos):
+
+| usuário | cargo (ato) |
+|---|---|
+| matheus ferraz | fisioterapia |
+| ricardo alves motta | enfermagem |
+| mariana fernandes | médico |
+
+**Leitos com paciente cadastrado:** 302, 507, 707, 905 e 1201
+
+**Setores** — descobertos a partir do leito, 18 leitos cada:
+
+| leitos | setor | | leitos | setor |
+|---|---|---|---|---|
+| 101–118 | CTI geral | | 701–718 | cardio intensiva |
+| 201–218 | pediatria | | 801–818 | semi intensiva |
+| 301–318 | internação | | 901–918 | semi intensiva |
+| 401–418 | pediatria | | 1001–1018 | internação |
+| 501–518 | pós operatório | | 1201–1218 | internação vip |
+| 601–618 | cuidados especiais | | 1301–1318 | internação |
+
+O 11º andar não existe: leitos 1101–1118 são recusados.
+Para alterar, edite `lista_setor` em `database/data.py`, apague o `.db` e suba o servidor de novo.
+
+## Endpoints
+
+| método | rota | o que faz |
+|---|---|---|
+| POST | `/login` | valida usuário e senha, devolve código médico e ato |
+| GET | `/comanda/nova` | número aleatório da comanda + tipo "honorário" |
+| GET | `/paciente/{leito}` | setor, paciente, convênio, data e hora a partir do leito |
+| GET | `/setores` | setores e faixa de leitos |
+| GET | `/produtos` | lista de produtos |
+| POST | `/comanda/confirmar` | valida a comanda e devolve sucesso (não grava) |
+
+Faturamentos não são salvos — o objetivo do projeto é o fluxo de preenchimento, não a persistência
+da comanda.
+
+## Estrutura
+
+```
+database/data.py                 tabelas, dados de exemplo e consultas
+backend/sistema_faturamento.py   API FastAPI e serve o frontend
+frontend/                        index.html, style.css, app.js
+```
+
+## Próximo passo
+
+Autenticação com JWT — quero estudar e implementar por conta própria.

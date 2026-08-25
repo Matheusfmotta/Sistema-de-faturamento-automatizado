@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Faturamento</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- ================= TELA DE LOGIN ================= -->
+  <section id="tela-login" class="tela">
+    <div class="card card-login">
+      <h1>Faturamento</h1>
+      <p class="subtitulo">Entre com seu usuário e senha</p>
+
+      <form id="form-login" autocomplete="off">
+        <label>Usuário
+          <input type="text" id="login-usuario" placeholder="matheus ferraz" required>
+        </label>
+
+        <label>Senha
+          <input type="password" id="login-senha" placeholder="••••" required>
+        </label>
+
+        <p id="erro-login" class="erro"></p>
+
+        <button type="submit" class="btn btn-principal">Entrar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= TELA DO FORMULÁRIO ================= -->
+  <section id="tela-forms" class="tela escondido">
+    <div class="card card-forms">
+      <button type="button" id="btn-fechar" class="btn-fechar" title="Fechar e voltar ao login">&times;</button>
+
+      <h2>Movimentação de comandas</h2>
+      <p class="subtitulo" id="usuario-logado"></p>
+
+      <form id="form-comanda" autocomplete="off">
+
+        <!-- campo 1 e 2 -->
+        <div class="linha">
+          <label class="col">Número da comanda
+            <input type="text" id="numero-comanda" readonly placeholder="clique em gerar">
+          </label>
+          <label class="col">Tipo de comanda
+            <input type="text" id="tipo-comanda" readonly placeholder="-">
+          </label>
+          <button type="button" id="btn-gerar" class="btn btn-secundario">Gerar número</button>
+        </div>
+
+        <!-- campo 3 -> preenche 4,5,6,7,8 -->
+        <div class="linha">
+          <label class="col">Leito do paciente
+            <input type="number" id="leito" placeholder="ex: 1201">
+          </label>
+          <button type="button" id="btn-ok-leito" class="btn btn-secundario">Ok</button>
+        </div>
+
+        <p id="erro-leito" class="erro"></p>
+
+        <div class="linha">
+          <label class="col col-2">Setor
+            <input type="text" id="setor" readonly placeholder="preenchido pelo leito">
+          </label>
+        </div>
+
+        <div class="linha">
+          <label class="col">Código do paciente
+            <input type="text" id="id-paciente" readonly>
+          </label>
+          <label class="col col-2">Nome completo
+            <input type="text" id="nome-paciente" readonly>
+          </label>
+        </div>
+
+        <div class="linha">
+          <label class="col col-2">Convênio
+            <input type="text" id="convenio" readonly>
+          </label>
+          <label class="col">Data
+            <input type="text" id="data" readonly>
+          </label>
+          <label class="col">Hora
+            <input type="text" id="hora" readonly>
+          </label>
+        </div>
+
+        <hr>
+
+        <!-- campos 8, 9, 10 (produtos) -->
+        <h3>Produtos</h3>
+        <div id="lista-produtos"></div>
+
+        <button type="button" id="btn-add-produto" class="btn btn-secundario btn-add">
+          + Adicionar novo produto
+        </button>
+
+        <hr>
+
+        <!-- campos 11 e 12 -->
+        <div class="linha">
+          <label class="col">Código médico
+            <input type="text" id="codigo-medico" readonly>
+          </label>
+          <label class="col col-2">Ato
+            <input type="text" id="ato" readonly>
+          </label>
+        </div>
+
+        <p id="erro-comanda" class="erro"></p>
+
+        <div class="linha linha-botoes">
+          <button type="button" id="btn-cancelar" class="btn btn-cancelar">Cancelar</button>
+          <button type="submit" class="btn btn-principal">Confirmar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= ANIMAÇÃO DE SUCESSO ================= -->
+  <div id="overlay-sucesso" class="overlay escondido">
+    <div class="sucesso-caixa">
+      <div class="check">
+        <svg viewBox="0 0 52 52">
+          <circle class="check-circulo" cx="26" cy="26" r="24" fill="none"/>
+          <path class="check-risco" fill="none" d="M14 27 l8 8 l16 -16"/>
+        </svg>
+      </div>
+      <p id="mensagem-sucesso">Comanda salva com sucesso!</p>
+    </div>
+  </div>
+
+  <!-- modelo de uma linha de produto, clonado pelo JS -->
+  <template id="modelo-produto">
+    <div class="linha linha-produto">
+      <label class="col col-2">Selecionar produto
+        <select class="produto-select">
+          <option value="">clique para escolher</option>
+        </select>
+      </label>
+      <label class="col col-id">Produto
+        <input type="text" class="produto-id" readonly placeholder="id">
+      </label>
+      <label class="col col-2">Nome do produto
+        <input type="text" class="produto-nome" readonly>
+      </label>
+      <label class="col col-qtd">Quantidade
+        <input type="number" class="produto-qtd" value="1" min="1" step="1">
+      </label>
+      <button type="button" class="btn-remover" title="Remover produto">&times;</button>
+    </div>
+  </template>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

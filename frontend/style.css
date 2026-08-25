@@ -1,0 +1,285 @@
+:root {
+  --grad-1: #6a8dff;
+  --grad-2: #9b7bff;
+  --grad-3: #63d2ff;
+  --texto: #2b2f3a;
+  --texto-fraco: #6b7280;
+  --borda: #e3e6ef;
+  --erro: #d64545;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #ffffff;              /* fundo branco, como pedido */
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--texto);
+}
+
+.escondido { display: none !important; }
+
+.tela {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+/* ---------- cartão com degradê suave ---------- */
+.card {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  padding: 36px 34px;
+  background: linear-gradient(135deg, #f4f7ff 0%, #f7f3ff 55%, #f0fbff 100%);
+  border: 1px solid var(--borda);
+  box-shadow: 0 18px 45px rgba(90, 110, 190, 0.14);
+  animation: subir .35s ease;
+}
+
+.card::before {                     /* fita de degradê no topo */
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-3));
+}
+
+.card-login { max-width: 380px; }
+.card-forms { max-width: 900px; }
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+h1, h2 {
+  margin: 6px 0 4px;
+  font-weight: 600;
+  background: linear-gradient(90deg, var(--grad-1), var(--grad-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 24px; }
+
+h3 {
+  margin: 4px 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--texto-fraco);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.subtitulo {
+  margin: 0 0 22px;
+  font-size: 13px;
+  color: var(--texto-fraco);
+}
+
+/* ---------- campos ---------- */
+label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texto-fraco);
+}
+
+input, select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--texto);
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+
+input:focus, select:focus {
+  border-color: var(--grad-1);
+  box-shadow: 0 0 0 3px rgba(106, 141, 255, .18);
+}
+
+input[readonly] {
+  background: #f6f7fb;
+  color: var(--texto-fraco);
+}
+
+/* ---------- layout em linhas ---------- */
+.linha {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.col   { flex: 1; min-width: 0; }
+.col-2 { flex: 2; }
+.col-id  { flex: 0 0 90px; }
+.col-qtd { flex: 0 0 110px; }
+
+.linha .btn { margin-bottom: 14px; }
+
+.linha-botoes {
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--borda);
+  margin: 18px 0;
+}
+
+/* ---------- botões ---------- */
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .18s, opacity .18s;
+}
+
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-principal {
+  width: auto;
+  color: #fff;
+  background: linear-gradient(90deg, var(--grad-1), var(--grad-2));
+  box-shadow: 0 6px 16px rgba(120, 120, 255, .3);
+}
+
+.card-login .btn-principal { width: 100%; margin-top: 6px; }
+
+.btn-secundario {
+  color: var(--grad-2);
+  background: #fff;
+  border: 1px solid var(--borda);
+  white-space: nowrap;
+}
+
+.btn-cancelar {
+  color: var(--texto-fraco);
+  background: #fff;
+  border: 1px solid var(--borda);
+}
+
+.btn-add {
+  width: 100%;
+  border-style: dashed;
+}
+
+.btn-fechar {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--texto-fraco);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-fechar:hover { background: rgba(0,0,0,.06); color: var(--texto); }
+
+.btn-remover {
+  margin-bottom: 14px;
+  width: 34px;
+  height: 38px;
+  font-size: 18px;
+  color: var(--texto-fraco);
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-remover:hover { color: var(--erro); border-color: var(--erro); }
+
+.linha-produto { animation: subir .25s ease; }
+
+/* ---------- erros ---------- */
+.erro {
+  min-height: 16px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--erro);
+}
+
+/* ---------- animação de sucesso ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, .82);
+  backdrop-filter: blur(3px);
+  z-index: 10;
+  animation: aparecer .2s ease;
+}
+
+@keyframes aparecer { from { opacity: 0; } to { opacity: 1; } }
+
+.sucesso-caixa {
+  padding: 38px 46px;
+  text-align: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f4f7ff, #f0fbff);
+  border: 1px solid var(--borda);
+  box-shadow: 0 18px 45px rgba(90, 110, 190, .18);
+  animation: subir .3s ease;
+}
+
+.sucesso-caixa p {
+  margin: 16px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.check svg { width: 68px; height: 68px; }
+
+.check-circulo {
+  stroke: var(--grad-1);
+  stroke-width: 3;
+  stroke-dasharray: 152;
+  stroke-dashoffset: 152;
+  animation: riscar .5s ease forwards;
+}
+
+.check-risco {
+  stroke: var(--grad-2);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: riscar .35s .4s ease forwards;
+}
+
+@keyframes riscar { to { stroke-dashoffset: 0; } }
+
+@media (max-width: 720px) {
+  .linha { flex-direction: column; align-items: stretch; }
+  .col-id, .col-qtd { flex: 1; }
+}
